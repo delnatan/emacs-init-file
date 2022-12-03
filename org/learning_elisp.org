@@ -1,0 +1,54 @@
+#+TITLE: Introduction to Emacs lisp
+#+AUTHOR: Daniel Elnatan
+# no table of contents when exported and enable sub/superscript
+# C-c C-c while cursor is within cell to execute code.
+#+OPTIONS: toc:nil ^:{}
+
+* Basics
+
+First /member/ of list is an operator, the rest are /arguments/.
+#+begin_src emacs-lisp
+(+ 2 5)
+#+end_src
+
+#+RESULTS:
+: 7
+
+The last list to be evaluated is returned. Using the macro /progn/, we can execute
+a series of lists. /Note: functions that have been evaluated within an org file
+is installed in current Emacs session/.
+
+#+begin_src emacs-lisp
+  (progn
+    (defun multiply-by-seven (arg)
+      "optional documentation"
+      (* 7 arg))
+    (multiply_by_seven 8))
+#+end_src
+
+#+RESULTS:
+: 56
+
+* Interactive functions
+Interactive functions are functions that are meant to be executed through =M-x=,
+where the returned value is not automatically displayed in the echo
+area. Interactive functions are called for its side effects, not its return
+value (e.g. moving cursor around).
+
+After installing the function below, execute with =C-u <number> M-x
+interactive/multiply-by-seven=. The message will be displayed in the echo area
+below.
+
+The code "p" is for a /prefix/ argument supplied by =C-u=.
+#+begin_src emacs-lisp
+  (defun interactive/multiply-by-seven (arg)
+    "this interactive "
+    (interactive "p")
+    (message "The result is %d" (* 7 arg))
+    )
+#+end_src
+
+#+RESULTS:
+: interactive/multiply-by-seven
+
+

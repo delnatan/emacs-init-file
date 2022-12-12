@@ -1,0 +1,16 @@
+* Git notes
+=git status=, check current status
+
+When working with a git repository keep this mental model of what happens when you add/commit/etc:
+[[file:figures/github-file-stages.svg]]
+
+/Note: to see images inline. Run/ ~M-x org-toggle-inline-images RET~.
+
+
+** Remove/untrack files from repository
+If you accidentally committed & uploaded files you don't want in your
+repository, simply deleting them in the local repository and then pushing
+updates to remote does not remove the files.
+
+After deleting the files from working directory you need to run =git rm <deleted
+file1> <deleted file2>= before pushing changes to remote repository.

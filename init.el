@@ -11,8 +11,14 @@
   (package-refresh-contents)
   (package-install 'use-package))
 (eval-and-compile
-  (setq use-package-always-ensure t
+  (setq use-package-always-ensure t ; this adds ':ensure t' when using use-package
 	use-package-expand-minimally t))
+
+;; inhibit startup message
+(setq inhibit-startup-message t)
+
+;; show line numbers in all buffers
+;; (display-line-numbers-mode nil)
 
 ;; I dont like the behavior of C-x C-b so this snippet just modifies it
 ;; so that listing buffers and choosing one opens it on the current frame
@@ -35,7 +41,6 @@ ARG, show only buffers that are visiting files."
  '(custom-enabled-themes '(leuven))
  '(display-fill-column-indicator t)
  '(fill-column 80)
- '(global-display-line-numbers-mode t)
  '(org-confirm-babel-evaluate nil)
  '(org-hide-emphasis-markers t)
  '(package-selected-packages '(org-ref pdf-tools mixed-pitch org-appear use-package))
@@ -46,7 +51,9 @@ ARG, show only buffers that are visiting files."
 (setq org-startup-indented t ; use indentation
       org-pretty-entities t ; toggle display of entities as utf-8 char
       org-startup-with-inline-images t) ; show inline images
-      
+
+;; enable line-display for all major programming modes
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
 ;; custom emacs settings for resizing windows
 (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
@@ -56,11 +63,6 @@ ARG, show only buffers that are visiting files."
 
 ;; keybinding to replace C-x o, switch to other window
 (global-set-key (kbd "M-o") 'other-window)
-
-;; inhibit startup message
-(setq inhibit-startup-message t)
-;; show line numbers in all buffers
-(display-line-numbers-mode nil)
 
 ;; move all backup files into one directory
 (setq backup-directory-alist '(("" . "~/.emacs.d/bak")))
@@ -77,13 +79,13 @@ ARG, show only buffers that are visiting files."
 ;; tool-bar-mode
 
 ;; show hidden emphasis markers until cursor over
-
 (use-package org-appear
   :ensure t; install package if not already present
   :after org
   :hook (org-mode . org-appear-mode))
 
-;; use mixed-pitch package to display 
+;; use mixed-pitch package to display variable-width and fixed-width fonts
+;; in org-mode
 (use-package mixed-pitch
   :hook
   ;; use it in all text modes
@@ -91,7 +93,7 @@ ARG, show only buffers that are visiting files."
 
 ;; use pdf-tools
 (use-package pdf-tools
-  :pin manual
+  :pin manual ;; need to comment this out for initial setup
   :config
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-width)
@@ -109,7 +111,7 @@ ARG, show only buffers that are visiting files."
 
 (use-package org-ref)
 
-;; Custom functions
+;; Custom functions to load
 (add-to-list 'load-path "~/.emacs.d/custom") ; add `custom` to load-path
 (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 
@@ -124,6 +126,6 @@ ARG, show only buffers that are visiting files."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Roboto Mono" :height 110 :foundry "nil" :slant normal :weight light :width normal))))
- '(fixed-pitch ((t (:family "Roboto Mono"))))
- '(variable-pitch ((t (:family "Input Sans")))))
+ '(default ((t (:family "Inconsolata" :height 120 :foundry "nil" :slant normal :weight regular :width normal))))
+ '(fixed-pitch ((t (:family "Inconsolata"))))
+ '(variable-pitch ((t (:family "Verdana")))))

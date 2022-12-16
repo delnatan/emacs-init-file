@@ -41,9 +41,11 @@ ARG, show only buffers that are visiting files."
  '(custom-enabled-themes '(leuven))
  '(display-fill-column-indicator t)
  '(fill-column 80)
+ '(global-visual-line-mode t)
  '(org-confirm-babel-evaluate nil)
  '(org-hide-emphasis-markers t)
- '(package-selected-packages '(org-ref pdf-tools mixed-pitch org-appear use-package))
+ '(package-selected-packages
+   '(multiple-cursors pdf-tools mixed-pitch org-appear use-package))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 
@@ -93,7 +95,7 @@ ARG, show only buffers that are visiting files."
 
 ;; use pdf-tools
 (use-package pdf-tools
-  :pin manual ;; need to comment this out for initial setup
+  ;; :pin manual ;; need to comment this out for initial setup
   :config
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-width)
@@ -109,11 +111,26 @@ ARG, show only buffers that are visiting files."
 (add-hook 'TeX-after-compilation-finished-functions
           #'TeX-revert-document-buffer)
 
-(use-package org-ref)
+;; please double check ~/.emacs.d/.mc-lists.el for command preferences!
+;; sometimes if you remembered the wrong settings, inserting characters in org-mode
+;; doesn't work
+(use-package multiple-cursors
+  ;; keybinding can be set by using
+  :bind (("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+	 ("C-S-c C-S-c" . mc/edit-lines)
+	 ("M-<mouse-1>" . mc/add-cursor-on-click)
+	 )
+  )
+
+;; for using CSL in org-mode to handle citations
+(use-package citeproc
+  :after org)
+
 
 ;; Custom functions to load
 (add-to-list 'load-path "~/.emacs.d/custom") ; add `custom` to load-path
-(load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
+(load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-pathg
 
 ;; enable languages for org-babel
 (org-babel-do-load-languages
@@ -126,6 +143,6 @@ ARG, show only buffers that are visiting files."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Inconsolata" :height 120 :foundry "nil" :slant normal :weight regular :width normal))))
+ '(default ((t (:family "Inconsolata" :height 130 :foundry "nil" :slant normal :weight regular :width normal))))
  '(fixed-pitch ((t (:family "Inconsolata"))))
- '(variable-pitch ((t (:family "Verdana")))))
+ '(variable-pitch ((t (:family "DejaVu Sans")))))

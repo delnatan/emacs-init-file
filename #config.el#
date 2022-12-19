@@ -54,8 +54,8 @@ ARG, show only buffers that are visiting files."
 (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 
 (setq org-startup-indented t ; use indentation
-      org-pretty-entities t ; toggle display of entities as utf-8 char
-      org-startup-with-inline-images t) ; show inline images
+    org-pretty-entities t ; toggle display of entities as utf-8 char
+    org-startup-with-inline-images t) ; show inline images
 
 (use-package citeproc
   :after org)
@@ -106,14 +106,3 @@ ARG, show only buffers that are visiting files."
   :config
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
-
-(use-package jupyter)
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (shell . t)
-   (jupyter . t))
- )
-
-(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)

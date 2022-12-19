@@ -1,13 +1,15 @@
 #+title: My Emacs configuration
 
-In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs GUI (or Custom) is under =custom-set-variables= and =custom-set-faces=. Everything else will go under this org file to have a more thorough documentation.
+In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs
+GUI (or Custom) is under =custom-set-variables= and =custom-set-faces=. Everything
+else will go under this org file to have a more thorough documentation.
 
 * Basic settings
 
 #+begin_src emacs-lisp
   (require 'package)
   (package-initialize)
-  
+
   ;; add MELPA archive to the list of available repositories
   (add-to-list 'package-archives
                '("melpa" . "http://melpa.org/packages/") t)
@@ -42,7 +44,7 @@ listing buffers and choosing one opens it on the current frame.
 
   ;; bind the new function to C-b
   (define-key ctl-x-map "\C-b" 'my-list-buffers)
-  #+end_src
+#+end_src
 
 I only want to show line numbers in a /programming/ mode.
 #+begin_src emacs-lisp
@@ -76,8 +78,6 @@ Emacs will automatically create backup files in the same folder as the current d
         version-control t)
 #+end_src
 
-
-
 * Custom functions
 
 Make sure you have the folder and files present in the indicated path
@@ -89,9 +89,9 @@ Make sure you have the folder and files present in the indicated path
 * ~org-mode~ tweaks 
 
 #+begin_src emacs-lisp
-(setq org-startup-indented t ; use indentation
-    org-pretty-entities t ; toggle display of entities as utf-8 char
-    org-startup-with-inline-images t) ; show inline images
+  (setq org-startup-indented t ; use indentation
+        org-pretty-entities t ; toggle display of entities as utf-8 char
+        org-startup-with-inline-images t) ; show inline images
 #+end_src
 
 * Bibliography or citations
@@ -164,12 +164,86 @@ I love the multi-cursor functionality in Sublime Text, so this package gives som
     )
 #+end_src
 
+* Python setup
+
+Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a
+conda environment, and =conda-env-deactivate= to deactivate them. You can also use
+=M-x conda-activate-for-buffer=.
+
+#+begin_src emacs-lisp
+  (use-package conda
+    :defer t
+    :init
+    (setq conda-env-home-directory (expand-file-name "~/miniforge3"))
+    (setq conda-env-subdirectory "envs")
+    :config
+    (conda-env-initialize-interactive-shells)
+    (conda-env-initialize-eshell))
+
+  (use-package jupyter)
+
+#+end_src
+
+The conda package is NOT for doing literate programming while in org-mode, but
+it's a simple way to switch which python is called from within Emacs.
+  
 * ~org-babel~ languages
 
-Enable code execution in org-mode
+Active org-babel languages. Since I want to use jupyter kernels in org-mode, add =jupyter=.
+
 #+begin_src emacs-lisp
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-     (shell . t)))
+     (shell . t)
+     (jupyter . t))
+   )
+#+end_src
+
+To run ~ipython~ in org-babel, you need to include the option =:session :results
+raw drawer= in the first cell. You can also include a =:kernel= option if executing
+a code block from different ipython kernel. 
+
+After loading, source code blocks with names like =jupyter-LANG=, will be
+available to use. See =jupyter-available-kernelspecs=.
+
+Some kernelspecs have spaces in their names. Those get replaced by dashes in the
+language name we need to use for the corresponding source blocks.
+
+You can navigate between blocks via keybindings =C-c C-v n= (next block) or =C-c C-v p= (previous block).
+
+** Using jupyter within org-mode
+
+We can use a specific jupyter kernel and open one specific session of that kernel by passing arguments to =#+begin_src= code blocks. But it can get repetitive, so the following is useful:
+#+begin_example
+# to avoid repeat the same source blocks we set the =header-args=
+# property at the beginning of an org file
+
+#+property: header-args:jupyter-python :session hello
+#+property: header-args:jupyter-python+ :kernel biopython
+#+property: header-args:jupyter-python+ :async yes
+
+# then you can simply do
+
+#+begin_src jupyter-python
+<code goes here>
+#+end_src
+
+#+end_example
+
+Variables from one session is persistent, so you can access it in the next code block just like a jupyter notebook.
+
+** some notes on jupyter output
+
+You can change the mime-type priority with =:display= argument, (e.g. =:display text/plain text/html=).
+
+If you generate an image from the code block (e.g. displaying a plot), a file
+name is automatically generated and the image file is written to file in
+=org-babel-jupyter-resource-directory=.  You can specify a file name using the
+=:file= argument.
+
+The output plot result can be displayed inline if we invoke =C-c C-x C-v=, after the execution of a code block. (this is the keybinding to =org-toggle-inline-images=.
+
+#+begin_src emacs-lisp
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)  
 #+end_src

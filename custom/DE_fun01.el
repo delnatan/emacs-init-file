@@ -29,7 +29,27 @@ C-u 50 M-x wrap-region
     (message "no region was selected"))
     )
  )
- 
+
+(defun copy-cleaned-region (start end)
+  "run clean-string() on current region and put into kill-ring"
+  (interactive "r")
+  (if (use-region-p)
+      (kill-new (clean-string (buffer-substring start end)))
+    (message "no region was selected")
+    ))
+  
+(defun subset-cleaned-region (start end)
+  "run clean-string() on current region and take subset from string's start (sstart) and end (send)"
+  (interactive "r")
+  (if (use-region-p)
+      (let* ((regionp (clean-string (buffer-substring start end)))
+	     (sstart (string-to-number (read-from-minibuffer "String start: ")))
+	     (send (string-to-number (read-from-minibuffer (format "String end (%d): " (length regionp))))))
+	(message "Put %d to %d (%d total chars) to kill-ring" sstart send (length regionp))
+	(kill-new (substring regionp sstart send))
+	)
+    (message "no region was selected")))
+
 
 (defun split-string-every (string chars)
   "split STRING into substrings of length CHARS character
@@ -47,4 +67,4 @@ This returns a list of strings."
 
 These characters are removed:
 numbers, punctuation marks (non-word), whitespace, newline"
-  (replace-regexp-in-string "([[:digit:][:punct:]\s\n]" "" string))
+  (replace-regexp-in-string "[[:digit:][:punct:]\s\n]" "" string))

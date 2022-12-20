@@ -78,7 +78,7 @@ Emacs will automatically create backup files in the same folder as the current d
 
 Make sure you have the folder and files present in the indicated path
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/custom") ; add `custom` to load-path
+  (add-to-list 'load-path "~/Apps/emacs-init-file/custom") ; add `custom` to load-path
   (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 #+end_src
 

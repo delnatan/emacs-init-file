@@ -7,14 +7,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
- '(custom-enabled-themes '(leuven))
+ '(custom-enabled-themes '(leuven-dark))
  '(display-fill-column-indicator t)
  '(fill-column 80)
+ '(global-auto-revert-mode t)
  '(global-visual-line-mode t)
  '(org-confirm-babel-evaluate nil)
  '(org-hide-emphasis-markers t)
  '(package-selected-packages
-   '(citeproc multiple-cursors pdf-tools mixed-pitch org-appear use-package))
+   '(boxquote citeproc multiple-cursors pdf-tools mixed-pitch org-appear use-package))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 
@@ -23,6 +24,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Inconsolata" :height 120 :foundry "nil" :slant normal :weight regular :width normal))))
- '(fixed-pitch ((t (:family "Inconsolata"))))
- '(variable-pitch ((t (:family "Arial")))))
+ '(default ((t (:family "Roboto Mono" :height 110 :foundry "GOOG" :slant normal :weight regular :width normal))))
+ '(fixed-pitch ((t (:family "Roboto Mono"))))
+ '(variable-pitch ((t (:family "Sans Serif")))))

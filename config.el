@@ -50,7 +50,7 @@ ARG, show only buffers that are visiting files."
       kept-old-versions 2
       version-control t)
 
-(add-to-list 'load-path "~/.emacs.d/custom") ; add `custom` to load-path
+(add-to-list 'load-path "~/Apps/emacs-init-file/custom") ; add `custom` to load-path
 (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 
 ;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph    
@@ -132,5 +132,3 @@ ARG, show only buffers that are visiting files."
  )
 
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-
-

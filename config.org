@@ -1,11 +1,10 @@
 #+title: My Emacs configuration
 
-In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs
-GUI (or Custom) is under =custom-set-variables= and =custom-set-faces=. Everything
-else will go under this org file to have a more thorough documentation.
+In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs GUI (or Custom) is under =custom-set-variables= and =custom-set-faces=. Everything else will go under this org file to have a more thorough documentation.
 
 * Basic settings
 
+Initialize package management and use =use-package=.
 #+begin_src emacs-lisp
   (require 'package)
   (package-initialize)
@@ -28,9 +27,7 @@ else will go under this org file to have a more thorough documentation.
   (setq inhibit-startup-message t)
 #+end_src
 
-I don't like the behavior of =C-x C-b=, so this snippet modifies it so that
-listing buffers and choosing one opens it on the current frame.
-
+I don't like the behavior of =C-x C-b=, so this snippet modifies it so that listing buffers and choosing one opens it on the current frame.
 #+begin_src emacs-lisp
   (defun my-list-buffers (&optional arg)
     "Display a list of existing buffers.
@@ -60,7 +57,6 @@ Resizing windows is counter intuitive, so I'd like up/down/left/right to resize 
 #+end_src
 
 The default keybinding to switch to another window is =C-x o=, let's just make this shorter since I use it often.
-
 #+begin_src emacs-lisp
   (global-set-key (kbd "M-o") 'other-window)
 #+end_src
@@ -84,6 +80,21 @@ Make sure you have the folder and files present in the indicated path
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/.emacs.d/custom") ; add `custom` to load-path
   (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
+#+end_src
+
+I often use the function =fill-paragraph= to fit a paragraph according to the variable =fill-column=, but there's no convenient way to undo this operation. So here it is (taken from [[https://www.emacswiki.org/emacs/UnfillParagraph][Emacs wiki]]).
+#+begin_src emacs-lisp
+  ;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph    
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph and makes it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region)))
+
+  ;; Handy key definition
+  (define-key global-map "\M-Q" 'unfill-paragraph)
 #+end_src
 
 * ~org-mode~ tweaks 
@@ -195,8 +206,11 @@ Active org-babel languages. Since I want to use jupyter kernels in org-mode, add
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
+     (awk . t)
+     (sed . t)
      (shell . t)
-     (jupyter . t))
+     (jupyter . t)
+     )
    )
 #+end_src
 
@@ -233,17 +247,15 @@ We can use a specific jupyter kernel and open one specific session of that kerne
 
 Variables from one session is persistent, so you can access it in the next code block just like a jupyter notebook.
 
-** some notes on jupyter output
+** Some notes on jupyter output
 
 You can change the mime-type priority with =:display= argument, (e.g. =:display text/plain text/html=).
 
-If you generate an image from the code block (e.g. displaying a plot), a file
-name is automatically generated and the image file is written to file in
-=org-babel-jupyter-resource-directory=.  You can specify a file name using the
-=:file= argument.
+If you generate an image from the code block (e.g. displaying a plot), a file name is automatically generated and the image file is written to file in =org-babel-jupyter-resource-directory=.  You can specify a file name using the =:file= argument.
 
 The output plot result can be displayed inline if we invoke =C-c C-x C-v=, after the execution of a code block. (this is the keybinding to =org-toggle-inline-images=.
 
 #+begin_src emacs-lisp
   (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)  
 #+end_src
+

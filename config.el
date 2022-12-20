@@ -53,6 +53,18 @@ ARG, show only buffers that are visiting files."
 (add-to-list 'load-path "~/.emacs.d/custom") ; add `custom` to load-path
 (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 
+;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph    
+(defun unfill-paragraph (&optional region)
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive (progn (barf-if-buffer-read-only) '(t)))
+  (let ((fill-column (point-max))
+        ;; This would override `fill-column' if it's an integer.
+        (emacs-lisp-docstring-fill-column t))
+    (fill-paragraph nil region)))
+
+;; Handy key definition
+(define-key global-map "\M-Q" 'unfill-paragraph)
+
 (setq org-startup-indented t ; use indentation
       org-pretty-entities t ; toggle display of entities as utf-8 char
       org-startup-with-inline-images t) ; show inline images
@@ -112,8 +124,13 @@ ARG, show only buffers that are visiting files."
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((emacs-lisp . t)
+   (awk . t)
+   (sed . t)
    (shell . t)
-   (jupyter . t))
+   (jupyter . t)
+   )
  )
 
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+
+

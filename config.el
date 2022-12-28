@@ -50,6 +50,37 @@ ARG, show only buffers that are visiting files."
       kept-old-versions 2
       version-control t)
 
+(electric-pair-mode 1)
+
+(use-package corfu
+  :custom
+  (corfu-auto t)
+  :hook ((prog-mode . corfu-mode)
+         (shell.mode . corfu-mode))
+  :init
+  (global-corfu-mode))
+
+(use-package emacs
+  :init
+  (setq tab-always-indent 'complete))
+
+;; define custom function to trigger show/hide in 'outline-minor-mode'
+(defun de/toggle-hiding ()
+  (interactive)
+  (if outline-minor-mode
+      (hs-toggle-hiding)))
+
+(add-hook 'prog-mode-hook 'outline-minor-mode)
+(define-prefix-command 'cm-map nil "Outline-")
+;; HIDE
+(define-key cm-map "h" 'hs-hide-all) ; hide all but headings
+;; SHOW
+(define-key cm-map "a" 'hs-show-all) ; show all
+;;  (define-key cm-map "t" 'hs-toggle-hiding) ; toggle hide/show
+(global-set-key (kbd "M-O") cm-map)
+
+(global-set-key (kbd "M-S-<tab>") 'de/toggle-hiding)
+
 (add-to-list 'load-path "~/Apps/emacs-init-file/custom") ; add `custom` to load-path
 (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 
@@ -66,7 +97,7 @@ ARG, show only buffers that are visiting files."
 (define-key global-map "\M-Q" 'unfill-paragraph)
 
 (setq org-startup-indented t ; use indentation
-      org-pretty-entities t ; toggle display of entities as utf-8 char
+      ;; org-pretty-entities t ; toggle display of entities as utf-8 char
       org-startup-with-inline-images t) ; show inline images
 
 (use-package citeproc
@@ -119,16 +150,12 @@ ARG, show only buffers that are visiting files."
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
 
-(use-package jupyter)
-
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((emacs-lisp . t)
    (awk . t)
    (sed . t)
    (shell . t)
-   (jupyter . t)
+   (python . t)
    )
  )
-
-(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)

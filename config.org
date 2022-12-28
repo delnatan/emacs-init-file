@@ -2,6 +2,8 @@
 
 In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs GUI (or Custom) is under =custom-set-variables= and =custom-set-faces=. Everything else will go under this org file to have a more thorough documentation.
 
+*Very helpful* shortcut while in /any/ mode is =C-h b=, which shows all of the keybindings in the current mode. Explore this if you're just learning to get familiar with various keybindings and discover new functions.
+
 * Basic settings
 
 Initialize package management and use =use-package=.
@@ -74,6 +76,50 @@ Emacs will automatically create backup files in the same folder as the current d
         version-control t)
 #+end_src
 
+
+I'd like to automatically insert a matching bracket pairs (or quotes, etc.).
+#+begin_src emacs-lisp
+  (electric-pair-mode 1)
+#+end_src
+
+* Convenient features
+
+Evaluating the ~corfu~ package for auto-completion in Emacs (lisp).
+
+#+begin_src emacs-lisp
+  (use-package corfu
+    :custom
+    (corfu-auto t)
+    :hook ((prog-mode . corfu-mode)
+           (shell.mode . corfu-mode))
+    :init
+    (global-corfu-mode))
+
+  (use-package emacs
+    :init
+    (setq tab-always-indent 'complete))
+#+end_src
+
+In terms of code folding we will use Emacs' =outline-minor-mode=, which is the same mechanism used in org-mode. Here I the outline mode is triggered by =M-S-o= keybinding, then use =a= or =h= to show or hide all. Each heading can be toggled to show/hide by the keybinding =M-S-<tab>=.
+#+begin_src emacs-lisp
+  ;; define custom function to trigger show/hide in 'outline-minor-mode'
+  (defun de/toggle-hiding ()
+    (interactive)
+    (if outline-minor-mode
+        (hs-toggle-hiding)))
+
+  (add-hook 'prog-mode-hook 'outline-minor-mode)
+  (define-prefix-command 'cm-map nil "Outline-")
+  ;; HIDE
+  (define-key cm-map "h" 'hs-hide-all) ; hide all but headings
+  ;; SHOW
+  (define-key cm-map "a" 'hs-show-all) ; show all
+  ;;  (define-key cm-map "t" 'hs-toggle-hiding) ; toggle hide/show
+  (global-set-key (kbd "M-O") cm-map)
+
+  (global-set-key (kbd "M-S-<tab>") 'de/toggle-hiding)
+  #+end_src
+
 * Custom functions
 
 Make sure you have the folder and files present in the indicated path
@@ -97,13 +143,16 @@ I often use the function =fill-paragraph= to fit a paragraph according to the va
   (define-key global-map "\M-Q" 'unfill-paragraph)
 #+end_src
 
-* ~org-mode~ tweaks 
+* ~org-mode~ tweaks
 
 #+begin_src emacs-lisp
   (setq org-startup-indented t ; use indentation
-        org-pretty-entities t ; toggle display of entities as utf-8 char
+        ;; org-pretty-entities t ; toggle display of entities as utf-8 char
         org-startup-with-inline-images t) ; show inline images
 #+end_src
+
+A neat trick for when writing LaTeX snippets is the =C-c C-x C-l= keybinding to show/hide preview of latex. You enclose the expression with =\[= and =\]= or =$=.
+
 
 * Bibliography or citations
 
@@ -190,9 +239,6 @@ conda environment, and =conda-env-deactivate= to deactivate them. You can also u
     :config
     (conda-env-initialize-interactive-shells)
     (conda-env-initialize-eshell))
-
-  (use-package jupyter)
-
 #+end_src
 
 The conda package is NOT for doing literate programming while in org-mode, but
@@ -209,7 +255,7 @@ Active org-babel languages. Since I want to use jupyter kernels in org-mode, add
      (awk . t)
      (sed . t)
      (shell . t)
-     (jupyter . t)
+     (python . t)
      )
    )
 #+end_src
@@ -218,44 +264,6 @@ To run ~ipython~ in org-babel, you need to include the option =:session :results
 raw drawer= in the first cell. You can also include a =:kernel= option if executing
 a code block from different ipython kernel. 
 
-After loading, source code blocks with names like =jupyter-LANG=, will be
-available to use. See =jupyter-available-kernelspecs=.
-
-Some kernelspecs have spaces in their names. Those get replaced by dashes in the
-language name we need to use for the corresponding source blocks.
-
 You can navigate between blocks via keybindings =C-c C-v n= (next block) or =C-c C-v p= (previous block).
 
-** Using jupyter within org-mode
-
-We can use a specific jupyter kernel and open one specific session of that kernel by passing arguments to =#+begin_src= code blocks. But it can get repetitive, so the following is useful:
-#+begin_example
-# to avoid repeat the same source blocks we set the =header-args=
-# property at the beginning of an org file
-
-#+property: header-args:jupyter-python :session hello
-#+property: header-args:jupyter-python+ :kernel biopython
-#+property: header-args:jupyter-python+ :async yes
-
-# then you can simply do
-
-#+begin_src jupyter-python
-<code goes here>
-#+end_src
-
-#+end_example
-
-Variables from one session is persistent, so you can access it in the next code block just like a jupyter notebook.
-
-** Some notes on jupyter output
-
-You can change the mime-type priority with =:display= argument, (e.g. =:display text/plain text/html=).
-
-If you generate an image from the code block (e.g. displaying a plot), a file name is automatically generated and the image file is written to file in =org-babel-jupyter-resource-directory=.  You can specify a file name using the =:file= argument.
-
-The output plot result can be displayed inline if we invoke =C-c C-x C-v=, after the execution of a code block. (this is the keybinding to =org-toggle-inline-images=.
-
-#+begin_src emacs-lisp
-  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)  
-#+end_src
 

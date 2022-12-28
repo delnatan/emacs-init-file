@@ -118,7 +118,7 @@ In terms of code folding we will use Emacs' =outline-minor-mode=, which is the s
   (global-set-key (kbd "M-O") cm-map)
 
   (global-set-key (kbd "M-S-<tab>") 'de/toggle-hiding)
-  #+end_src
+#+end_src
 
 * Custom functions
 
@@ -226,11 +226,16 @@ I love the multi-cursor functionality in Sublime Text, so this package gives som
 
 * Python setup
 
-Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a
-conda environment, and =conda-env-deactivate= to deactivate them. You can also use
-=M-x conda-activate-for-buffer=.
+Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a conda environment, and =conda-env-deactivate= to deactivate them. You can also use =M-x conda-activate-for-buffer=.
 
 #+begin_src emacs-lisp
+  (use-package code-cells
+    :bind
+    (:map code-cells-mode-map
+          ("C-c C-c" . code-cells-eval)
+          ("M-p" . code-cells-backward-cell)
+          ("M-n" . code-cells-forward-cell)))
+
   (use-package conda
     :defer t
     :init
@@ -239,10 +244,15 @@ conda environment, and =conda-env-deactivate= to deactivate them. You can also u
     :config
     (conda-env-initialize-interactive-shells)
     (conda-env-initialize-eshell))
+
+  ;; attempt to turn any python file into code-cells
+  ;; if it contains delimiters
+  (add-hook 'python-mode-hook 'code-cells-mode-maybe)
 #+end_src
 
-The conda package is NOT for doing literate programming while in org-mode, but
-it's a simple way to switch which python is called from within Emacs.
+The conda package is NOT for doing literate programming while in org-mode, but it's a simple way to switch which python is called from within Emacs.
+
+I'm trying out the =code-cells= package to do lightweight jupyter-notebook-like experience in Emacs. The idea is that we can open a scratch python file (which sets Emacs in python-mode), then we can run =C-c C-p= a python process (ipython if =python-shell-interpreter= and =python-shell-interpreter-args= were configured as such)
   
 * ~org-babel~ languages
 

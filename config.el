@@ -141,6 +141,13 @@ ARG, show only buffers that are visiting files."
          ("C-S-<mouse-1>" . mc/add-cursor-on-click))
   )
 
+(use-package code-cells
+  :bind
+  (:map code-cells-mode-map
+        ("C-c C-c" . code-cells-eval)
+        ("M-p" . code-cells-backward-cell)
+        ("M-n" . code-cells-forward-cell)))
+
 (use-package conda
   :defer t
   :init
@@ -149,6 +156,10 @@ ARG, show only buffers that are visiting files."
   :config
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
+
+;; attempt to turn any python file into code-cells
+;; if it contains delimiters
+(add-hook 'python-mode-hook 'code-cells-mode-maybe)
 
 (org-babel-do-load-languages
  'org-babel-load-languages

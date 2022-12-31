@@ -17,7 +17,10 @@
 		 ("begin" "$1" "$" "$$" "\\(" "\\[")))
  '(org-hide-emphasis-markers t)
  '(package-selected-packages
-   '(conda corfu boxquote citeproc multiple-cursors pdf-tools mixed-pitch org-appear use-package))
+   '(code-cells conda corfu boxquote citeproc multiple-cursors pdf-tools mixed-pitch org-appear use-package))
+ '(python-indent-offset 4)
+ '(python-shell-interpreter "ipython3")
+ '(python-shell-interpreter-args "--simple-prompt")
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 

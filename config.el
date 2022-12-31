@@ -18,6 +18,9 @@
 ;; inhibit startup message
 (setq inhibit-startup-message t)
 
+;; shorten the yes-or-no prompt to y-or-n
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 (defun my-list-buffers (&optional arg)
   "Display a list of existing buffers.
 The list is displayed in a buffer named \"*Buffer List*\".
@@ -52,12 +55,14 @@ ARG, show only buffers that are visiting files."
 
 (electric-pair-mode 1)
 
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+
 (use-package corfu
   :custom
   (corfu-auto t)
   :hook ((prog-mode . corfu-mode)
          (shell.mode . corfu-mode))
-  :init
+  :config
   (global-corfu-mode))
 
 (use-package emacs
@@ -81,6 +86,63 @@ ARG, show only buffers that are visiting files."
 
 (global-set-key (kbd "M-S-<tab>") 'de/toggle-hiding)
 
+(defun toggle-window-split ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+             (next-win-buffer (window-buffer (next-window)))
+             (this-win-edges (window-edges (selected-window)))
+             (next-win-edges (window-edges (next-window)))
+             (this-win-2nd (not (and (<= (car this-win-edges)
+                                         (car next-win-edges))
+                                     (<= (cadr this-win-edges)
+                                         (cadr next-win-edges)))))
+             (splitter
+              (if (= (car this-win-edges)
+                     (car (window-edges (next-window))))
+                  'split-window-horizontally
+                'split-window-vertically)))
+        (delete-other-windows)
+        (let ((first-win (selected-window)))
+          (funcall splitter)
+          (if this-win-2nd (other-window 1))
+          (set-window-buffer (selected-window) this-win-buffer)
+          (set-window-buffer (next-window) next-win-buffer)
+          (select-window first-win)
+          (if this-win-2nd (other-window 1))))))
+
+(global-set-key (kbd "C-x |") 'toggle-window-split)
+
+;; this was taken from https://www.emacswiki.org/emacs/DiredOmitMode
+(defun dired-dotfiles-toggle ()
+  "Show/hide dot-files"
+  (interactive)
+  (when (equal major-mode 'dired-sidebar-mode)
+    (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
+        (progn 
+          (set (make-local-variable 'dired-dotfiles-show-p) nil)
+          (message "h")
+          (dired-mark-files-regexp "^\\\.")
+          (dired-do-kill-lines))
+      (progn (revert-buffer) ; otherwise just revert to re-show
+             (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+
+(use-package dired-sidebar
+  :bind (("C-x C-n" . dired-sidebar-toggle-sidebar)
+         :map dired-mode-map
+         ("<backtab>" . dired-dotfiles-toggle))
+  :ensure t
+  :commands (dired-sidebar-toggle-sidebar)
+  :init
+  (add-hook 'dired-sidebar-mode-hook
+            (lambda ()
+              (unless (file-remote-p default-directory)
+                (auto-revert-mode))))
+  :config
+  (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+  (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+  (setq dired-sidebar-subtree-line-prefix "__"))
+
 (add-to-list 'load-path "~/Apps/emacs-init-file/custom") ; add `custom` to load-path
 (load "DE_fun01") ; search for file DE_fun01.el or DE_fun01.elc in load-path
 
@@ -96,9 +158,33 @@ ARG, show only buffers that are visiting files."
 ;; Handy key definition
 (define-key global-map "\M-Q" 'unfill-paragraph)
 
-(setq org-startup-indented t ; use indentation
-      ;; org-pretty-entities t ; toggle display of entities as utf-8 char
-      org-startup-with-inline-images t) ; show inline images
+(setq org-startup-indented t) ; use indentation
+(setq org-confirm-babel-evaluate nil) ; skip y/n prompt when executing src block
+(setq org-hide-emphasis-markers t) ; hide emphasis marker
+(setq org-src-fontify-natively t) ; org syntax highlighting
+(setq org-fontify-whole-heading-line t)
+(setq org-format-latex-options
+      '(:foreground default
+                    :background default
+                    :scale 1.4
+                    :html-foreground "Black"
+                    :html-background "Transparent"
+                    :html-scale 1.0
+                    :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+(setq org-startup-with-inline-images t) ; show inline images
+
+;; use fancy bullets in org-mode
+(use-package org-bullets
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+;; enable variable pitch in org-mode
+;; make sure you have the variable-pitch and fixed-pitch set in init.el
+(add-hook 'org-mode-hook 'variable-pitch-mode)
+
+;; shortcut to insert a block of emacs-lisp code=
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 (use-package citeproc
   :after org)
@@ -112,11 +198,6 @@ ARG, show only buffers that are visiting files."
   :ensure t; install package if not already present
   :after org
   :hook (org-mode . org-appear-mode))
-
-(use-package mixed-pitch
-  :hook
-  ;; use it in all text modes
-  (text-mode . mixed-pitch-mode))
 
 (use-package pdf-tools
   :pin manual ;; need to comment this out for initial setup
@@ -141,12 +222,30 @@ ARG, show only buffers that are visiting files."
          ("C-S-<mouse-1>" . mc/add-cursor-on-click))
   )
 
+;; custom function to kill current cell
+(defun de/kill-cell ()
+  "code-cells mode custom function to kill current cell"
+  (interactive)
+  (let ((beg (car (code-cells--bounds)))
+        (end (cadr (code-cells--bounds))))
+    (kill-region beg end)))
+
+(defun de/restart-python ()
+  "Clear current inferior python buffer and restart process"
+  (interactive)
+  (progn (with-current-buffer "*Python*" (comint-clear-buffer))
+         (python-shell-restart)))
+
 (use-package code-cells
   :bind
   (:map code-cells-mode-map
+        ("C-c d d" . de/kill-cell)
         ("C-c C-c" . code-cells-eval)
+        ("C-c r p" . de/restart-python)
         ("M-p" . code-cells-backward-cell)
-        ("M-n" . code-cells-forward-cell)))
+        ("M-n" . code-cells-forward-cell)
+        ("M-<up>" . code-cells-move-cell-up)
+        ("M-<down>" . code-cells-move-cell-down)))
 
 (use-package conda
   :defer t
@@ -160,6 +259,16 @@ ARG, show only buffers that are visiting files."
 ;; attempt to turn any python file into code-cells
 ;; if it contains delimiters
 (add-hook 'python-mode-hook 'code-cells-mode-maybe)
+
+;; automatically scroll to the bottom when sending to inferior process
+(setq comint-scroll-to-bottom-on-input t)
+(setq comint-scroll-to-bottom-on-output t)
+(setq comint-move-point-for-output t)
+
+;; truncate lines in the output of inferior buffer
+(add-hook 'comint-mode-hook
+          (lambda()
+            (setq truncate-lines 1)))
 
 (org-babel-do-load-languages
  'org-babel-load-languages

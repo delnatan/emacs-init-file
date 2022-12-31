@@ -1,3 +1,4 @@
+
 #+title: My Emacs configuration
 
 In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs GUI (or Custom) is under =custom-set-variables= and =custom-set-faces=. Everything else will go under this org file to have a more thorough documentation.
@@ -27,6 +28,9 @@ Initialize package management and use =use-package=.
 
   ;; inhibit startup message
   (setq inhibit-startup-message t)
+
+  ;; shorten the yes-or-no prompt to y-or-n
+  (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
 I don't like the behavior of =C-x C-b=, so this snippet modifies it so that listing buffers and choosing one opens it on the current frame.
@@ -76,10 +80,15 @@ Emacs will automatically create backup files in the same folder as the current d
         version-control t)
 #+end_src
 
-
 I'd like to automatically insert a matching bracket pairs (or quotes, etc.).
 #+begin_src emacs-lisp
   (electric-pair-mode 1)
+#+end_src
+
+** Custom themes
+
+#+begin_src emacs-lisp
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 #+end_src
 
 * Convenient features
@@ -92,7 +101,7 @@ Evaluating the ~corfu~ package for auto-completion in Emacs (lisp).
     (corfu-auto t)
     :hook ((prog-mode . corfu-mode)
            (shell.mode . corfu-mode))
-    :init
+    :config
     (global-corfu-mode))
 
   (use-package emacs
@@ -100,7 +109,12 @@ Evaluating the ~corfu~ package for auto-completion in Emacs (lisp).
     (setq tab-always-indent 'complete))
 #+end_src
 
-In terms of code folding we will use Emacs' =outline-minor-mode=, which is the same mechanism used in org-mode. Here I the outline mode is triggered by =M-S-o= keybinding, then use =a= or =h= to show or hide all. Each heading can be toggled to show/hide by the keybinding =M-S-<tab>=.
+** Code folding (Python)
+
+Trigger with =M-O=, use =h= to hide all, and =a= to show all.
+Toggle show/hide by =M-S-<tab>=.
+
+In terms of code folding we will use Emacs' =outline-minor-mode=, which is the same mechanism used in org-mode. 
 #+begin_src emacs-lisp
   ;; define custom function to trigger show/hide in 'outline-minor-mode'
   (defun de/toggle-hiding ()
@@ -118,6 +132,75 @@ In terms of code folding we will use Emacs' =outline-minor-mode=, which is the s
   (global-set-key (kbd "M-O") cm-map)
 
   (global-set-key (kbd "M-S-<tab>") 'de/toggle-hiding)
+#+end_src
+
+** Window management
+
+This little snippet will toggle window split between horizontal and vertical. Bound to =C-x |=.
+#+begin_src emacs-lisp
+  (defun toggle-window-split ()
+    (interactive)
+    (if (= (count-windows) 2)
+        (let* ((this-win-buffer (window-buffer))
+               (next-win-buffer (window-buffer (next-window)))
+               (this-win-edges (window-edges (selected-window)))
+               (next-win-edges (window-edges (next-window)))
+               (this-win-2nd (not (and (<= (car this-win-edges)
+                                           (car next-win-edges))
+                                       (<= (cadr this-win-edges)
+                                           (cadr next-win-edges)))))
+               (splitter
+                (if (= (car this-win-edges)
+                       (car (window-edges (next-window))))
+                    'split-window-horizontally
+                  'split-window-vertically)))
+          (delete-other-windows)
+          (let ((first-win (selected-window)))
+            (funcall splitter)
+            (if this-win-2nd (other-window 1))
+            (set-window-buffer (selected-window) this-win-buffer)
+            (set-window-buffer (next-window) next-win-buffer)
+            (select-window first-win)
+            (if this-win-2nd (other-window 1))))))
+
+  (global-set-key (kbd "C-x |") 'toggle-window-split)
+#+end_src
+
+** =dired-sidebar= and customizations
+
+With ~dired-sidebar~ package, too "jump" to file using =dired= as done by default with =C-x C-j=, do =C-u C-x C-n=. Here I've changed the function so that it works with ~dired-sidebar-mode~ rather than ~dired-mode~ (the normal dired buffer).
+
+#+begin_src emacs-lisp
+  ;; this was taken from https://www.emacswiki.org/emacs/DiredOmitMode
+  (defun dired-dotfiles-toggle ()
+    "Show/hide dot-files"
+    (interactive)
+    (when (equal major-mode 'dired-sidebar-mode)
+      (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
+          (progn 
+            (set (make-local-variable 'dired-dotfiles-show-p) nil)
+            (message "h")
+            (dired-mark-files-regexp "^\\\.")
+            (dired-do-kill-lines))
+        (progn (revert-buffer) ; otherwise just revert to re-show
+               (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+
+  (use-package dired-sidebar
+    :bind (("C-x C-n" . dired-sidebar-toggle-sidebar)
+           :map dired-mode-map
+           ("<backtab>" . dired-dotfiles-toggle))
+    :ensure t
+    :commands (dired-sidebar-toggle-sidebar)
+    :init
+    (add-hook 'dired-sidebar-mode-hook
+              (lambda ()
+                (unless (file-remote-p default-directory)
+                  (auto-revert-mode))))
+    :config
+    (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+    (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+    (setq dired-sidebar-subtree-line-prefix "__"))
+
 #+end_src
 
 * Custom functions
@@ -143,16 +226,40 @@ I often use the function =fill-paragraph= to fit a paragraph according to the va
   (define-key global-map "\M-Q" 'unfill-paragraph)
 #+end_src
 
-* ~org-mode~ tweaks
+* ~org-mode~ customization
+To tweak font settings in org-mode, you can use =M-x customize-face= and select for example ~org-level-1~. The ~src~ blocks in org-mode belongs to the group =org-block=.
 
 #+begin_src emacs-lisp
-  (setq org-startup-indented t ; use indentation
-        ;; org-pretty-entities t ; toggle display of entities as utf-8 char
-        org-startup-with-inline-images t) ; show inline images
+  (setq org-startup-indented t) ; use indentation
+  (setq org-confirm-babel-evaluate nil) ; skip y/n prompt when executing src block
+  (setq org-hide-emphasis-markers t) ; hide emphasis marker
+  (setq org-src-fontify-natively t) ; org syntax highlighting
+  (setq org-fontify-whole-heading-line t)
+  (setq org-format-latex-options
+        '(:foreground default
+                      :background default
+                      :scale 1.4
+                      :html-foreground "Black"
+                      :html-background "Transparent"
+                      :html-scale 1.0
+                      :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+  (setq org-startup-with-inline-images t) ; show inline images
+
+  ;; use fancy bullets in org-mode
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  ;; enable variable pitch in org-mode
+  ;; make sure you have the variable-pitch and fixed-pitch set in init.el
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
+
+  ;; shortcut to insert a block of emacs-lisp code=
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
 #+end_src
 
 A neat trick for when writing LaTeX snippets is the =C-c C-x C-l= keybinding to show/hide preview of latex. You enclose the expression with =\[= and =\]= or =$=.
-
 
 * Bibliography or citations
 
@@ -184,14 +291,6 @@ Show hidden emphasis markers until cursor over
     :ensure t; install package if not already present
     :after org
     :hook (org-mode . org-appear-mode))
-#+end_src
-
-Use mixed-pitch package to display variable-width and fixed-width fonts in org-mode
-#+begin_src emacs-lisp
-  (use-package mixed-pitch
-    :hook
-    ;; use it in all text modes
-    (text-mode . mixed-pitch-mode))
 #+end_src
 
 I also like to read pdf using Emacs, so install pdf-tools
@@ -229,12 +328,30 @@ I love the multi-cursor functionality in Sublime Text, so this package gives som
 Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a conda environment, and =conda-env-deactivate= to deactivate them. You can also use =M-x conda-activate-for-buffer=.
 
 #+begin_src emacs-lisp
+  ;; custom function to kill current cell
+  (defun de/kill-cell ()
+    "code-cells mode custom function to kill current cell"
+    (interactive)
+    (let ((beg (car (code-cells--bounds)))
+          (end (cadr (code-cells--bounds))))
+      (kill-region beg end)))
+
+  (defun de/restart-python ()
+    "Clear current inferior python buffer and restart process"
+    (interactive)
+    (progn (with-current-buffer "*Python*" (comint-clear-buffer))
+           (python-shell-restart)))
+
   (use-package code-cells
     :bind
     (:map code-cells-mode-map
+          ("C-c d d" . de/kill-cell)
           ("C-c C-c" . code-cells-eval)
+          ("C-c r p" . de/restart-python)
           ("M-p" . code-cells-backward-cell)
-          ("M-n" . code-cells-forward-cell)))
+          ("M-n" . code-cells-forward-cell)
+          ("M-<up>" . code-cells-move-cell-up)
+          ("M-<down>" . code-cells-move-cell-down)))
 
   (use-package conda
     :defer t
@@ -248,11 +365,23 @@ Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a 
   ;; attempt to turn any python file into code-cells
   ;; if it contains delimiters
   (add-hook 'python-mode-hook 'code-cells-mode-maybe)
+
+  ;; automatically scroll to the bottom when sending to inferior process
+  (setq comint-scroll-to-bottom-on-input t)
+  (setq comint-scroll-to-bottom-on-output t)
+  (setq comint-move-point-for-output t)
+
+  ;; truncate lines in the output of inferior buffer
+  (add-hook 'comint-mode-hook
+            (lambda()
+              (setq truncate-lines 1)))
 #+end_src
 
 The conda package is NOT for doing literate programming while in org-mode, but it's a simple way to switch which python is called from within Emacs.
 
-I'm trying out the =code-cells= package to do lightweight jupyter-notebook-like experience in Emacs. The idea is that we can open a scratch python file (which sets Emacs in python-mode), then we can run =C-c C-p= a python process (ipython if =python-shell-interpreter= and =python-shell-interpreter-args= were configured as such)
+I'm trying out the =code-cells= package to do lightweight jupyter-notebook-like experience in Emacs. The idea is that we can open a scratch python file (which sets Emacs in python-mode), then we can run =C-c C-p= a python process (ipython if =python-shell-interpreter= and =python-shell-interpreter-args= were configured as such).
+
+I've added =C-c r p= to restart the ipython process. 
   
 * ~org-babel~ languages
 

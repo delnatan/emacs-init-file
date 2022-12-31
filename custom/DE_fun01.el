@@ -39,7 +39,8 @@ C-u 50 M-x wrap-region
     ))
   
 (defun subset-cleaned-region (start end)
-  "run clean-string() on current region and take subset from string's start (sstart) and end (send)"
+  "run clean-string() on current region and take subset from
+string's start (sstart) and end (send)"
   (interactive "r")
   (if (use-region-p)
       (let* ((regionp (clean-string (buffer-substring start end)))

@@ -254,7 +254,7 @@ To tweak font settings in org-mode, you can use =M-x customize-face= and select 
   ;; make sure you have the variable-pitch and fixed-pitch set in init.el
   (add-hook 'org-mode-hook 'variable-pitch-mode)
 
-  ;; shortcut to insert a block of emacs-lisp code=
+  ;; shortcut to insert a block of emacs-lisp/python code
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
 #+end_src
@@ -279,7 +279,7 @@ To use =org-cite= (which should be built into Emacs) and =citeproc=, you just ad
 #+CITE_EXPORT: csl ~/Zotero/styles/apa.csl 
 #+end_example
 
-The bibliography path can be relative but the path to the ~csl~ file must be a full-path. Then, to cite something from your bibliography. Invoke =org-cite-insert= or use the keybinding =C-c C-x @=. This way you don't really have to manage a single large monolithic ~bib~ file. Download various ~csl~ file from the Zotero github page.
+The bibliography path can be relative but the path to the ~csl~ file must be a full-path. Then, to cite something from your bibliography. Invoke =org-cite-insert= or use the keybinding =C-c C-x @=. This way you don't really have to manage a single large monolithic ~bib~ file. The citation /style/ depends on the .csl file. Download various ~csl~ file from the Zotero github page.
 
 To insert the formatted references in the exported document, add a =#+PRINT_BIBLIOGRAPHY:= directive where ever you want it to show up in the document.
 

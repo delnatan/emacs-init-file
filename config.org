@@ -91,6 +91,19 @@ I'd like to automatically insert a matching bracket pairs (or quotes, etc.).
   (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 #+end_src
 
+I like =lambda-theme= so trying it out here:
+#+begin_src emacs-lisp
+  (use-package lambda-themes
+    :load-path ("~/Apps/emacs-init-file/themes/lambda-themes")
+    :custom
+    (lambda-themes-set-italic-comments t)
+    (lambda-themes-set-italic-keywords t)
+    (lambda-themes-set-variable-pitch t) 
+    :config
+    ;; load preferred theme 
+    (load-theme 'lambda-light))
+#+end_src
+
 * Convenient features
 
 Evaluating the ~corfu~ package for auto-completion in Emacs (lisp).

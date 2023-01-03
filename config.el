@@ -57,6 +57,16 @@ ARG, show only buffers that are visiting files."
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
+(use-package lambda-themes
+  :load-path ("~/Apps/emacs-init-file/themes/lambda-themes")
+  :custom
+  (lambda-themes-set-italic-comments t)
+  (lambda-themes-set-italic-keywords t)
+  (lambda-themes-set-variable-pitch t) 
+  :config
+  ;; load preferred theme 
+  (load-theme 'lambda-light))
+
 (use-package corfu
   :custom
   (corfu-auto t)
@@ -182,7 +192,7 @@ ARG, show only buffers that are visiting files."
 ;; make sure you have the variable-pitch and fixed-pitch set in init.el
 (add-hook 'org-mode-hook 'variable-pitch-mode)
 
-;; shortcut to insert a block of emacs-lisp code=
+;; shortcut to insert a block of emacs-lisp/python code
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 

@@ -7,9 +7,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
- '(custom-enabled-themes '(zenburn))
  '(custom-safe-themes
-   '("28a34dd458a554d34de989e251dc965e3dc72bace7d096cdc29249d60f395a82" default))
+   '("afffd2e82639b878a7e25d153e7e1d47704797d266f5f0c16de427255c918059" "bc02fd532a4853aba217ddb88b4966c39b331566ea0212aa8b2dfd0e3bbd73ed" "3b228dab7cbc6d14ea583e0bb5c857284a01d9489c0e24f5ecc4845e77dc84b0" default))
  '(display-fill-column-indicator t)
  '(fill-column 80)
  '(global-auto-revert-mode t)
@@ -29,7 +28,7 @@
  ;; If there is more than one, they won't work right.
  '(default ((t (:family "Roboto Mono" :height 110))))
  '(fixed-pitch ((t (:family "Roboto Mono" :height 110))))
- '(org-block ((t (:extend t :background "#494949" :family "Roboto Mono" :height 110))))
- '(org-document-title ((t (:inherit default :foreground "#8CD0D3" :weight bold :height 1.25))))
- '(org-level-1 ((t (:inherit default :foreground "#DFAF8F" :weight bold :height 1.1))))
- '(variable-pitch ((t (:family "Baskerville" :height 150)))))
+ '(org-block ((t (:extend t :family "Roboto Mono" :height 110))))
+ '(org-document-title ((t (:inherit default :weight bold :height 1.25))))
+ '(org-level-1 ((t (:inherit default :weight bold :height 1.1))))
+ '(variable-pitch ((t (:family "Baskerville" :height 160)))))

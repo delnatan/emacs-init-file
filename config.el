@@ -65,7 +65,7 @@ ARG, show only buffers that are visiting files."
   (lambda-themes-set-variable-pitch t) 
   :config
   ;; load preferred theme 
-  (load-theme 'lambda-light))
+  (load-theme 'lambda-dark-faded t))
 
 (use-package corfu
   :custom
@@ -82,10 +82,10 @@ ARG, show only buffers that are visiting files."
 ;; define custom function to trigger show/hide in 'outline-minor-mode'
 (defun de/toggle-hiding ()
   (interactive)
-  (if outline-minor-mode
+  (if hs-minor-mode
       (hs-toggle-hiding)))
 
-(add-hook 'prog-mode-hook 'outline-minor-mode)
+(add-hook 'prog-mode-hook 'hs-minor-mode)
 (define-prefix-command 'cm-map nil "Outline-")
 ;; HIDE
 (define-key cm-map "h" 'hs-hide-all) ; hide all but headings

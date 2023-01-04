@@ -30,5 +30,6 @@
  '(fixed-pitch ((t (:family "Roboto Mono" :height 110))))
  '(org-block ((t (:extend t :family "Roboto Mono" :height 110))))
  '(org-document-title ((t (:inherit default :weight bold :height 1.25))))
- '(org-level-1 ((t (:inherit default :weight bold :height 1.1))))
+ '(org-level-1 ((t (:inherit default :weight bold :height 1.15))))
+ '(org-level-2 ((t (:inherit default :weight bold :height 1.05))))
  '(variable-pitch ((t (:family "Baskerville" :height 160)))))

@@ -32,4 +32,4 @@
  '(org-document-title ((t (:inherit default :weight bold :height 1.25))))
  '(org-level-1 ((t (:inherit default :weight bold :height 1.15))))
  '(org-level-2 ((t (:inherit default :weight bold :height 1.05))))
- '(variable-pitch ((t (:family "Baskerville" :height 160)))))
+ '(variable-pitch ((t (:family "Serif" :height 150)))))

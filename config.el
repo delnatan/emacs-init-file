@@ -57,27 +57,22 @@ ARG, show only buffers that are visiting files."
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
-(use-package lambda-themes
-  :load-path ("~/Apps/emacs-init-file/themes/lambda-themes")
-  :custom
-  (lambda-themes-set-italic-comments t)
-  (lambda-themes-set-italic-keywords t)
-  (lambda-themes-set-variable-pitch t) 
+(use-package nano-theme
+  :load-path ("~/Apps/emacs-init-file/themes/nano-theme")
   :config
-  ;; load preferred theme 
-  (load-theme 'lambda-dark-faded t))
+  (load-theme 'nano t)
+  (nano-light))
 
-(use-package corfu
-  :custom
-  (corfu-auto t)
-  :hook ((prog-mode . corfu-mode)
-         (shell.mode . corfu-mode))
-  :config
-  (global-corfu-mode))
-
-(use-package emacs
+(use-package nano-modeline
   :init
-  (setq tab-always-indent 'complete))
+  (require 'nano-modeline)
+  (nano-modeline-mode 1))
+
+(use-package auto-complete
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook #'auto-complete-mode)
+  )
 
 ;; define custom function to trigger show/hide in 'outline-minor-mode'
 (defun de/toggle-hiding ()

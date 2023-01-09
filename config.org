@@ -383,7 +383,7 @@ Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a 
   (use-package conda
     :defer t
     :init
-    (setq conda-env-home-directory (expand-file-name "~/miniforge3"))
+    (setq conda-anaconda-home (expand-file-name "~/miniforge3"))
     (setq conda-env-subdirectory "envs")
     :config
     (conda-env-initialize-interactive-shells)

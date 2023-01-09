@@ -257,7 +257,7 @@ ARG, show only buffers that are visiting files."
 (use-package conda
   :defer t
   :init
-  (setq conda-env-home-directory (expand-file-name "~/miniforge3"))
+  (setq conda-anaconda-home (expand-file-name "~/miniforge3"))
   (setq conda-env-subdirectory "envs")
   :config
   (conda-env-initialize-interactive-shells)

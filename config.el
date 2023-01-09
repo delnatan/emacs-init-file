@@ -1,3 +1,5 @@
+(setq mac-command-modifier 'meta)
+
 (require 'package)
 (package-initialize)
 

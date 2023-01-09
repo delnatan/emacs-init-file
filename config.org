@@ -5,6 +5,10 @@ In the ~~/.emacs.d/init.el~ file, all of the customizations added via the Emacs 
 *Very helpful* shortcut while in /any/ mode is =C-h b=, which shows all of the keybindings in the current mode. Explore this if you're just learning to get familiar with various keybindings and discover new functions.
 
 * Basic settings
+When using macOS, use the command key as =meta=.
+#+begin_src emacs-lisp
+  (setq mac-command-modifier 'meta)
+#+end_src
 
 Initialize package management and use =use-package=.
 #+begin_src emacs-lisp

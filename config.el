@@ -1,5 +1,3 @@
-(setq mac-command-modifier 'meta)
-
 (require 'package)
 (package-initialize)
 
@@ -76,22 +74,23 @@ ARG, show only buffers that are visiting files."
   (add-hook 'prog-mode-hook #'auto-complete-mode)
   )
 
-;; define custom function to trigger show/hide in 'outline-minor-mode'
-(defun de/toggle-hiding ()
+;; ;; define custom function to trigger show/hide in 'outline-minor-mode'
+(defun de/hide_all ()
   (interactive)
-  (if hs-minor-mode
-      (hs-toggle-hiding)))
+  (if outline-minor-mode
+      (progn (outline-hide-body)
+             (outline-hide-sublevels 1))
+    (message "Outline minor mode is not enabled.")))
 
-(add-hook 'prog-mode-hook 'hs-minor-mode)
-(define-prefix-command 'cm-map nil "Outline-")
-;; HIDE
-(define-key cm-map "h" 'hs-hide-all) ; hide all but headings
-;; SHOW
-(define-key cm-map "a" 'hs-show-all) ; show all
-;;  (define-key cm-map "t" 'hs-toggle-hiding) ; toggle hide/show
-(global-set-key (kbd "M-O") cm-map)
+(add-hook 'prog-mode-hook 'outline-minor-mode)
 
-(global-set-key (kbd "M-S-<tab>") 'de/toggle-hiding)
+;; remap some of the terrible default keybindings
+(let ((kmap outline-minor-mode-map))
+  (define-key kmap (kbd "M-<up>") 'outline-move-subtree-up)
+  (define-key kmap (kbd "M-<down>") 'outline-move-subtree-down)
+  (define-key kmap (kbd "S-<tab>") 'outline-cycle)
+  (define-key kmap (kbd "C-c h") 'de/hide_all)
+  (define-key kmap (kbd "C-c s") 'outline-show-all))
 
 (defun toggle-window-split ()
   (interactive)
@@ -276,6 +275,13 @@ ARG, show only buffers that are visiting files."
 (add-hook 'comint-mode-hook
           (lambda()
             (setq truncate-lines 1)))
+
+;; rebind indentation keys, `s` is the super/command keys in MacOS
+(use-package python
+  :mode ("\\.py\\'" . python-mode)
+  :config
+  (define-key python-mode-map (kbd "s-[") 'python-indent-shift-left)
+  (define-key python-mode-map (kbd "s-]") 'python-indent-shift-right))
 
 (org-babel-do-load-languages
  'org-babel-load-languages

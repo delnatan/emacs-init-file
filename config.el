@@ -211,6 +211,7 @@ ARG, show only buffers that are visiting files."
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-width)
   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+  (setq pdf-view-use-scaling t)
   :custom
   (pdf-annot-activate-created-annotations t "automatically annotate highlights")
   )
@@ -219,7 +220,7 @@ ARG, show only buffers that are visiting files."
       TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
       TeX-source-correlate-start-server t)
 (add-hook 'TeX-after-compilation-finished-functions
-          #'TeX-revert-document-buffer)
+	  #'TeX-revert-document-buffer)
 
 (use-package multiple-cursors
   :bind (("C->" . mc/mark-next-like-this)

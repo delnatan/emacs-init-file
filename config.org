@@ -339,60 +339,63 @@ I love the multi-cursor functionality in Sublime Text, so this package gives som
 Trying the ~conda.el~ package. To use it =M-x conda-env-activate= to activate a conda environment, and =conda-env-deactivate= to deactivate them. You can also use =M-x conda-activate-for-buffer=.
 
 #+begin_src emacs-lisp
-  ;; custom function to kill current cell
-  (defun de/kill-cell ()
-    "code-cells mode custom function to kill current cell"
-    (interactive)
-    (let ((beg (car (code-cells--bounds)))
-          (end (cadr (code-cells--bounds))))
-      (kill-region beg end)))
+    ;; custom function to kill current cell
+    (defun de/kill-cell ()
+      "code-cells mode custom function to kill current cell"
+      (interactive)
+      (let ((beg (car (code-cells--bounds)))
+            (end (cadr (code-cells--bounds))))
+        (kill-region beg end)))
 
-  (defun de/restart-python ()
-    "Clear current inferior python buffer and restart process"
-    (interactive)
-    (progn (with-current-buffer "*Python*" (comint-clear-buffer))
-           (python-shell-restart)))
+    (defun de/restart-python ()
+      "Clear current inferior python buffer and restart process"
+      (interactive)
+      (progn (with-current-buffer "*Python*" (comint-clear-buffer))
+             (python-shell-restart)))
 
-  (use-package code-cells
-    :bind
-    (:map code-cells-mode-map
-          ("C-c d d" . de/kill-cell)
-          ("C-c C-c" . code-cells-eval)
-          ("C-c r p" . de/restart-python)
-          ("M-p" . code-cells-backward-cell)
-          ("M-n" . code-cells-forward-cell)
-          ("M-<up>" . code-cells-move-cell-up)
-          ("M-<down>" . code-cells-move-cell-down)))
+    (use-package code-cells
+      :bind
+      (:map code-cells-mode-map
+            ("C-c d d" . de/kill-cell)
+            ("C-c C-c" . code-cells-eval)
+            ("C-c r p" . de/restart-python)
+            ("M-p" . code-cells-backward-cell)
+            ("M-n" . code-cells-forward-cell)
+            ("M-<up>" . code-cells-move-cell-up)
+            ("M-<down>" . code-cells-move-cell-down)))
 
-  (use-package conda
-    :defer t
-    :init
-    (setq conda-anaconda-home (expand-file-name "~/miniforge3"))
-    (setq conda-env-subdirectory "envs")
-    :config
-    (conda-env-initialize-interactive-shells)
-    (conda-env-initialize-eshell))
+    (use-package conda
+      :defer t
+      :init
+      (cond
+            ((eq system-type 'darwin) (setq conda-anaconda-home (expand-file-name "~/miniforge3")))
+            ((eq system-type 'gnu/linux) (setq conda-anaconda-home (expand-file-name "~/miniconda3")))
+            (t (setq conda-anaconda-home (expand-file-name "~/miniconda3"))))
+      (setq conda-env-subdirectory "envs")
+      :config
+      (conda-env-initialize-interactive-shells)
+      (conda-env-initialize-eshell))
 
-  ;; attempt to turn any python file into code-cells
-  ;; if it contains delimiters
-  (add-hook 'python-mode-hook 'code-cells-mode-maybe)
+    ;; attempt to turn any python file into code-cells
+    ;; if it contains delimiters
+    (add-hook 'python-mode-hook 'code-cells-mode-maybe)
 
-  ;; automatically scroll to the bottom when sending to inferior process
-  (setq comint-scroll-to-bottom-on-input t)
-  (setq comint-scroll-to-bottom-on-output t)
-  (setq comint-move-point-for-output t)
+    ;; automatically scroll to the bottom when sending to inferior process
+    (setq comint-scroll-to-bottom-on-input t)
+    (setq comint-scroll-to-bottom-on-output t)
+    (setq comint-move-point-for-output t)
 
-  ;; truncate lines in the output of inferior buffer
-  (add-hook 'comint-mode-hook
-            (lambda()
-              (setq truncate-lines 1)))
+    ;; truncate lines in the output of inferior buffer
+    (add-hook 'comint-mode-hook
+              (lambda()
+                (setq truncate-lines 1)))
 
-  ;; rebind indentation keys, `s` is the super/command keys in MacOS
-  (use-package python
-    :mode ("\\.py\\'" . python-mode)
-    :config
-    (define-key python-mode-map (kbd "s-[") 'python-indent-shift-left)
-    (define-key python-mode-map (kbd "s-]") 'python-indent-shift-right))
+    ;; rebind indentation keys, `s` is the super/command keys in MacOS
+    (use-package python
+      :mode ("\\.py\\'" . python-mode)
+      :config
+      (define-key python-mode-map (kbd "s-[") 'python-indent-shift-left)
+      (define-key python-mode-map (kbd "s-]") 'python-indent-shift-right))
 
  #+end_src
 

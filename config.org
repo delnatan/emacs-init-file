@@ -137,7 +137,7 @@ In terms of code folding we will use Emacs' =outline-minor-mode=, which is the s
   (let ((kmap outline-minor-mode-map))
     (define-key kmap (kbd "M-<up>") 'outline-move-subtree-up)
     (define-key kmap (kbd "M-<down>") 'outline-move-subtree-down)
-    (define-key kmap (kbd "S-<tab>") 'outline-cycle)
+    (define-key kmap (kbd "<backtab>") 'outline-cycle)
     (define-key kmap (kbd "C-c h") 'de/hide_all)
     (define-key kmap (kbd "C-c s") 'outline-show-all))
 
